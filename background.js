@@ -29,7 +29,27 @@ function updateIcon() {
 }
 
 function toggleTimer() {
-  if (!isRunning) {
+  if (isRunning && !isPaused) {
+    clearInterval(timerInterval);
+    isPaused = true;
+  } else if (isPaused) {
+    timerInterval = setInterval(() => {
+      if (timeRemaining > 0) {
+        timeRemaining--;
+        updateIcon();
+        chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+        if (timeRemaining === 0) {
+          clearInterval(timerInterval);
+          isRunning = false;
+          isTaskMode = !isTaskMode;
+          const alarmSound = new Audio('audio/alarm.wav');
+          alarmSound.play();
+        }
+      }
+    }, 1000);
+    isPaused = false;
+    isRunning = true;
+  } else {
     chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
@@ -45,21 +65,19 @@ function toggleTimer() {
           chrome.storage.local.set({ 'timeRemaining': timeRemaining });
           if (timeRemaining === 0) {
             clearInterval(timerInterval);
+            isRunning = false;
+            isTaskMode = !isTaskMode;
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
           }
         }
-        updateIcon(); // Ensure the icon is updated after the timer interval
       }, 1000);
       isRunning = true;
+      isPaused = false;
       updateIcon();
     });
-  } else {
-    clearInterval(timerInterval);
-    isRunning = false;
-    updateIcon();
   }
-  chrome.storage.local.set({ 'isRunning': isRunning, 'isTaskMode': isTaskMode });
+  chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
 }
 
 chrome.browserAction.onClicked.addListener(function() {
