@@ -1,9 +1,13 @@
 let isTaskMode = true;
 let isRunning = false;
-const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
-const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
-const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
-const VERY_LONG_BREAK_DURATION = 60 * 60; // 60 minutes in seconds for very long break
+// const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
+// const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
+// const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
+// const VERY_LONG_BREAK_DURATION = 60 * 60; // 60 minutes in seconds for very long break
+const TASK_DURATION = 5
+const SHORT_BREAK_DURATION = 5
+const LONG_BREAK_DURATION = 10
+const VERY_LONG_BREAK_DURATION = 15
 let timerDuration = TASK_DURATION;
 let timeRemaining = timerDuration;
 let timerInterval;
