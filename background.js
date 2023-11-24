@@ -30,11 +30,13 @@ function updateIcon() {
 
 function toggleTimer() {
   if (isRunning && !isPaused) {
-    clearInterval(timerInterval);
     isPaused = true;
     isRunning = false
+    clearInterval(timerInterval);
     updateIcon();
   } else if (isPaused) {
+    isPaused = false;
+    isRunning = true;
     clearInterval(timerInterval); // Clear any existing interval
     // Update the timer immediately before starting the interval
     if (timeRemaining > 0) {
@@ -61,8 +63,6 @@ function toggleTimer() {
         }
       }
     }, 1000);
-    isPaused = false;
-    isRunning = true;
   } else {
     chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
