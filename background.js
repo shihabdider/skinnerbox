@@ -32,6 +32,8 @@ function toggleTimer() {
   if (isRunning && !isPaused) {
     clearInterval(timerInterval);
     isPaused = true;
+    isRunning = false
+    updateIcon();
   } else if (isPaused) {
     clearInterval(timerInterval); // Clear any existing interval
     timerInterval = setInterval(() => {
@@ -46,6 +48,7 @@ function toggleTimer() {
           try {
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
+            updateIcon();
           } catch (error) {
             console.error('Failed to play alarm sound:', error);
           }
