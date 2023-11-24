@@ -17,12 +17,10 @@ function getRandomBreakLength() {
 }
 
 function updateIcon() {
-  if (isRunning) {
-    const minutes = Math.floor(timeRemaining / 60);
-    chrome.browserAction.setBadgeText({ text: minutes.toString() + 'm' });
-  } else {
-    chrome.browserAction.setBadgeText({ text: '-' });
-  }
+  const badgeText = isRunning ? Math.floor(timeRemaining / 60).toString() + 'm' : '-';
+  const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
+  chrome.browserAction.setBadgeText({ text: badgeText });
+  chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
 }
 
 function toggleTimer() {
@@ -41,7 +39,8 @@ function toggleTimer() {
         chrome.storage.local.set({ 'timeRemaining': timeRemaining });
         if (timeRemaining === 0) {
           clearInterval(timerInterval);
-          // Play sound or show notification
+          const alarmSound = new Audio('audio/alarm.wav');
+          alarmSound.play();
         }
       }, 1000);
       isRunning = true;
