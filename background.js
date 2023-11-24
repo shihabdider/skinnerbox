@@ -36,6 +36,12 @@ function toggleTimer() {
     updateIcon();
   } else if (isPaused) {
     clearInterval(timerInterval); // Clear any existing interval
+    // Update the timer immediately before starting the interval
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateIcon();
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+    }
     timerInterval = setInterval(() => {
       if (timeRemaining > 0) {
         timeRemaining--;
