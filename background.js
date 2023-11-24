@@ -33,6 +33,7 @@ function toggleTimer() {
     clearInterval(timerInterval);
     isPaused = true;
   } else if (isPaused) {
+    clearInterval(timerInterval); // Clear any existing interval
     timerInterval = setInterval(() => {
       if (timeRemaining > 0) {
         timeRemaining--;
@@ -42,8 +43,12 @@ function toggleTimer() {
           clearInterval(timerInterval);
           isRunning = false;
           isTaskMode = !isTaskMode;
-          const alarmSound = new Audio('audio/alarm.wav');
-          alarmSound.play();
+          try {
+            const alarmSound = new Audio('audio/alarm.wav');
+            alarmSound.play();
+          } catch (error) {
+            console.error('Failed to play alarm sound:', error);
+          }
         }
       }
     }, 1000);
