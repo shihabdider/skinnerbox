@@ -46,12 +46,9 @@ function toggleTimer() {
             clearInterval(timerInterval);
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
-            updateIcon(); // Ensure the icon is updated immediately after the timer ends
           }
-        } else {
-          clearInterval(timerInterval);
-          updateIcon();
         }
+        updateIcon(); // Ensure the icon is updated after the timer interval
       }, 1000);
       isRunning = true;
       updateIcon();
