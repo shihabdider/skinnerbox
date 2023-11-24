@@ -15,9 +15,8 @@ let timerInterval;
 
 function getRandomBreakLength() {
   const rand = Math.random();
-  if (rand < 0.5) return 0; // 50% chance of no break
-  if (rand < 0.7) return SHORT_BREAK_DURATION; // 20% chance of a short break
-  if (rand < 0.95) return LONG_BREAK_DURATION; // 25% chance of a long break
+  if (rand < 0.4) return SHORT_BREAK_DURATION; // 20% chance of a short break
+  if (rand < 0.9) return LONG_BREAK_DURATION; // 25% chance of a long break
   return VERY_LONG_BREAK_DURATION; // 5% chance of a very long break
 }
 
@@ -62,7 +61,7 @@ function toggleTimer() {
           clearInterval(timerInterval);
           isRunning = false;
           // Randomly decide whether to start a task or a break based on a 50/50 probability
-          isTaskMode = Math.random() < 0.5;
+          isTaskMode = !isTaskMode
           try {
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
@@ -74,12 +73,15 @@ function toggleTimer() {
       }
     }, 1000);
   } else {
+    isRunning = true;
+    isPaused = false;
+    updateIcon();
     chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
       if (timeRemaining === 0) {
-        isTaskMode = !isTaskMode;
-        timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
+        isTaskMode = isTaskMode ? Math.random() < 0.5 : true;
+        timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
         timeRemaining = timerDuration;
       }
       timerInterval = setInterval(() => {
@@ -90,28 +92,18 @@ function toggleTimer() {
           if (timeRemaining === 0) {
             clearInterval(timerInterval);
             isRunning = false;
-            isTaskMode = !isTaskMode;
+            isTaskMode = isTaskMode ? Math.random() < 0.5 : true;
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
             updateIcon();
           }
         }
       }, 1000);
-      isRunning = true;
-      isPaused = false;
-      updateIcon();
     });
   }
   chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
 }
 
 chrome.browserAction.onClicked.addListener(function() {
-  if (!isRunning && timeRemaining === 0) {
-    // Decide whether to start a task or a break based on a 50/50 probability
-    isTaskMode = Math.random() < 0.5;
-    timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
-    timeRemaining = timerDuration;
-    chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
-  }
   toggleTimer();
 });
