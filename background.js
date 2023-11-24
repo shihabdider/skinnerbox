@@ -74,6 +74,7 @@ function toggleTimer() {
             isTaskMode = !isTaskMode;
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
+            updateIcon();
           }
         }
       }, 1000);
