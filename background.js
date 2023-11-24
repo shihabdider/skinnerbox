@@ -46,6 +46,7 @@ function toggleTimer() {
             clearInterval(timerInterval);
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
+            updateIcon(); // Ensure the icon is updated immediately after the timer ends
           }
         } else {
           clearInterval(timerInterval);
@@ -63,12 +64,13 @@ function toggleTimer() {
   chrome.storage.local.set({ 'isRunning': isRunning, 'isTaskMode': isTaskMode });
 }
 
-chrome.browserAction.onClicked.addListener(toggleTimer);
-chrome.storage.local.get(['isRunning', 'timeRemaining', 'isTaskMode'], function(data) {
-  isRunning = data.isRunning !== undefined ? data.isRunning : isRunning;
-  timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : (data.isTaskMode ? TASK_DURATION : getRandomBreakLength());
-  if (isRunning) {
-    toggleTimer();
+chrome.browserAction.onClicked.addListener(function() {
+  if (!isRunning && timeRemaining === 0) {
+    // Decide whether to start a task or a break based on a 50/50 probability
+    isTaskMode = Math.random() < 0.5;
+    timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
+    timeRemaining = timerDuration;
+    chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
   }
-  updateIcon();
+  toggleTimer();
 });
