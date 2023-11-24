@@ -22,7 +22,16 @@ function getRandomBreakLength() {
 }
 
 function updateIcon() {
-  let badgeText = isPaused ? '-' : isRunning ? Math.floor(timeRemaining / 60).toString() + 'm' : '';
+  let badgeText = '';
+  if (isPaused) {
+    badgeText = '-';
+  } else if (isRunning) {
+    if (timeRemaining < 60) {
+      badgeText = timeRemaining.toString() + 's'; // Display seconds when less than one minute left
+    } else {
+      badgeText = Math.floor(timeRemaining / 60).toString() + 'm'; // Display minutes otherwise
+    }
+  }
   const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
   chrome.browserAction.setBadgeText({ text: badgeText });
   chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
