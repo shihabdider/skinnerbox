@@ -1,5 +1,6 @@
 let isTaskMode = true;
 let isRunning = false;
+let isPaused = false; // Track whether the timer is paused
 // const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
 // const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
 // const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
@@ -21,7 +22,12 @@ function getRandomBreakLength() {
 }
 
 function updateIcon() {
-  const badgeText = isRunning ? Math.floor(timeRemaining / 60).toString() + 'm' : '';
+  let badgeText = '';
+  if (isPaused) {
+    badgeText = '-';
+  } else if (isRunning) {
+    badgeText = Math.floor(timeRemaining / 60).toString() + 'm';
+  }
   const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
   chrome.browserAction.setBadgeText({ text: badgeText });
   chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
