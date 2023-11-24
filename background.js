@@ -1,15 +1,19 @@
 let isTaskMode = true;
 let isRunning = false;
-let timerDuration = 15 * 60; // 15 minutes in seconds for task mode
+const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
+const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
+const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
+const VERY_LONG_BREAK_DURATION = 60 * 60; // 60 minutes in seconds for very long break
+let timerDuration = TASK_DURATION;
 let timeRemaining = timerDuration;
 let timerInterval;
 
 function getRandomBreakLength() {
   const rand = Math.random();
   if (rand < 0.5) return 0; // 50% chance of no break
-  if (rand < 0.7) return 5 * 60; // 20% chance of a 5-minute break
-  if (rand < 0.95) return 15 * 60; // 25% chance of a 15-minute break
-  return 60 * 60; // 5% chance of an hour break
+  if (rand < 0.7) return SHORT_BREAK_DURATION; // 20% chance of a short break
+  if (rand < 0.95) return LONG_BREAK_DURATION; // 25% chance of a long break
+  return VERY_LONG_BREAK_DURATION; // 5% chance of a very long break
 }
 
 function updateIcon() {
@@ -28,7 +32,7 @@ function toggleTimer() {
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
       if (timeRemaining === 0) {
         isTaskMode = !isTaskMode;
-        timerDuration = isTaskMode ? 15 * 60 : getRandomBreakLength();
+        timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
         timeRemaining = timerDuration;
       }
       timerInterval = setInterval(() => {
@@ -52,9 +56,9 @@ function toggleTimer() {
 }
 
 chrome.browserAction.onClicked.addListener(toggleTimer);
-chrome.storage.local.get(['isRunning', 'timeRemaining'], function(data) {
+chrome.storage.local.get(['isRunning', 'timeRemaining', 'isTaskMode'], function(data) {
   isRunning = data.isRunning !== undefined ? data.isRunning : isRunning;
-  timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
+  timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : (data.isTaskMode ? TASK_DURATION : getRandomBreakLength());
   if (isRunning) {
     toggleTimer();
   }
