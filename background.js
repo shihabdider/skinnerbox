@@ -22,12 +22,7 @@ function getRandomBreakLength() {
 }
 
 function updateIcon() {
-  let badgeText = '';
-  if (isPaused) {
-    badgeText = '-';
-  } else if (isRunning) {
-    badgeText = Math.floor(timeRemaining / 60).toString() + 'm';
-  }
+  let badgeText = isPaused ? '-' : isRunning ? Math.floor(timeRemaining / 60).toString() + 'm' : '';
   const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
   chrome.browserAction.setBadgeText({ text: badgeText });
   chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
