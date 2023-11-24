@@ -61,7 +61,8 @@ function toggleTimer() {
         if (timeRemaining === 0) {
           clearInterval(timerInterval);
           isRunning = false;
-          isTaskMode = !isTaskMode;
+          // Randomly decide whether to start a task or a break based on a 50/50 probability
+          isTaskMode = Math.random() < 0.5;
           try {
             const alarmSound = new Audio('audio/alarm.wav');
             alarmSound.play();
