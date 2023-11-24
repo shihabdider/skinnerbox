@@ -21,7 +21,7 @@ function getRandomBreakLength() {
 }
 
 function updateIcon() {
-  const badgeText = isRunning ? Math.floor(timeRemaining / 60).toString() + 'm' : '-';
+  const badgeText = isRunning ? Math.floor(timeRemaining / 60).toString() + 'm' : '';
   const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
   chrome.browserAction.setBadgeText({ text: badgeText });
   chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
@@ -38,13 +38,18 @@ function toggleTimer() {
         timeRemaining = timerDuration;
       }
       timerInterval = setInterval(() => {
-        timeRemaining--;
-        updateIcon();
-        chrome.storage.local.set({ 'timeRemaining': timeRemaining });
-        if (timeRemaining === 0) {
+        if (timeRemaining > 0) {
+          timeRemaining--;
+          updateIcon();
+          chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+          if (timeRemaining === 0) {
+            clearInterval(timerInterval);
+            const alarmSound = new Audio('audio/alarm.wav');
+            alarmSound.play();
+          }
+        } else {
           clearInterval(timerInterval);
-          const alarmSound = new Audio('audio/alarm.wav');
-          alarmSound.play();
+          updateIcon();
         }
       }, 1000);
       isRunning = true;
