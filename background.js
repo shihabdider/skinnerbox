@@ -52,26 +52,7 @@ function toggleTimer() {
       updateIcon();
       chrome.storage.local.set({ 'timeRemaining': timeRemaining });
     }
-    timerInterval = setInterval(() => {
-      if (timeRemaining > 0) {
-        timeRemaining--;
-        updateIcon();
-        chrome.storage.local.set({ 'timeRemaining': timeRemaining });
-        if (timeRemaining === 0) {
-          clearInterval(timerInterval);
-          isRunning = false;
-          // Randomly decide whether to start a task or a break based on a 50/50 probability
-          isTaskMode = !isTaskMode
-          try {
-            const alarmSound = new Audio('audio/alarm.wav');
-            alarmSound.play();
-            updateIcon();
-          } catch (error) {
-            console.error('Failed to play alarm sound:', error);
-          }
-        }
-      }
-    }, 1000);
+    startTimer();
   } else {
     isRunning = true;
     isPaused = false;
@@ -84,21 +65,7 @@ function toggleTimer() {
         timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
         timeRemaining = timerDuration;
       }
-      timerInterval = setInterval(() => {
-        if (timeRemaining > 0) {
-          timeRemaining--;
-          updateIcon();
-          chrome.storage.local.set({ 'timeRemaining': timeRemaining });
-          if (timeRemaining === 0) {
-            clearInterval(timerInterval);
-            isRunning = false;
-            isTaskMode = isTaskMode ? Math.random() < 0.5 : true;
-            const alarmSound = new Audio('audio/alarm.wav');
-            alarmSound.play();
-            updateIcon();
-          }
-        }
-      }, 1000);
+      startTimer();
     });
   }
   chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
@@ -107,3 +74,31 @@ function toggleTimer() {
 chrome.browserAction.onClicked.addListener(function() {
   toggleTimer();
 });
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateIcon();
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+    } else {
+      timerExpired();
+    }
+  }, 1000);
+}
+
+function timerExpired() {
+  clearInterval(timerInterval);
+  isRunning = false;
+  // Randomly decide whether to start a task or a break based on a 50/50 probability
+  isTaskMode = Math.random() < 0.5;
+  timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
+  timeRemaining = timerDuration;
+  try {
+    const alarmSound = new Audio('audio/alarm.wav');
+    alarmSound.play();
+  } catch (error) {
+    console.error('Failed to play alarm sound:', error);
+  }
+  updateIcon();
+  chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
+}
