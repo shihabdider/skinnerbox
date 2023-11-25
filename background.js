@@ -1,10 +1,7 @@
 let isTaskMode = true;
 let isRunning = false;
 let isPaused = false; // Track whether the timer is paused
-const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
-const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
-const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
-const VERY_LONG_BREAK_DURATION = 30 * 60; // 60 minutes in seconds for very long break
+let TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
 let timerDuration = TASK_DURATION;
 let timeRemaining = timerDuration;
 let timerInterval;
