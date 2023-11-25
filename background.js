@@ -9,11 +9,45 @@ let timerDuration = TASK_DURATION;
 let timeRemaining = timerDuration;
 let timerInterval;
 
+// Create context menu for setting task duration
+const taskDurations = [10, 15, 30, 90]; // Task durations in minutes
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.removeAll(() => {
+    taskDurations.forEach((duration) => {
+      chrome.contextMenus.create({
+        id: `set-task-${duration}`,
+        title: `Set Task Duration to ${duration} minutes`,
+        contexts: ['browser_action'],
+      });
+    });
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info) => {
+  const match = info.menuItemId.match(/^set-task-(\d+)$/);
+  if (match) {
+    const newDuration = parseInt(match[1], 10) * 60; // Convert minutes to seconds
+    TASK_DURATION = newDuration;
+    if (isTaskMode) {
+      timerDuration = newDuration;
+      timeRemaining = newDuration;
+    }
+    updateIcon();
+    chrome.storage.local.set({ 'timerDuration': timerDuration, 'timeRemaining': timeRemaining });
+  }
+});
+
 function getRandomBreakLength() {
   const rand = Math.random();
-  if (rand < 0.5) return SHORT_BREAK_DURATION; // 50% chance of a short break
-  if (rand < 0.9) return LONG_BREAK_DURATION; // 40% chance of a long break
-  return VERY_LONG_BREAK_DURATION; // 10% chance of a very long break
+  let breakDuration;
+  if (rand < 0.5) {
+    breakDuration = Math.floor(TASK_DURATION / 3); // 50% chance of a short break
+  } else if (rand < 0.9) {
+    breakDuration = TASK_DURATION; // 40% chance of a long break
+  } else {
+    breakDuration = Math.min(TASK_DURATION * 2, 30 * 60); // 10% chance of a very long break, max 30 minutes
+  }
+  return breakDuration;
 }
 
 function updateIcon() {
