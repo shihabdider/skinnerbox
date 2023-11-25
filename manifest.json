@@ -16,7 +16,8 @@
   },
   "permissions": [
     "alarms",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
   "icons": {
     "16": "images/icon16.png",
