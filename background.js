@@ -1,23 +1,19 @@
 let isTaskMode = true;
 let isRunning = false;
 let isPaused = false; // Track whether the timer is paused
-// const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
-// const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
-// const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
-// const VERY_LONG_BREAK_DURATION = 60 * 60; // 60 minutes in seconds for very long break
-const TASK_DURATION = 5
-const SHORT_BREAK_DURATION = 5
-const LONG_BREAK_DURATION = 10
-const VERY_LONG_BREAK_DURATION = 15
+const TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
+const SHORT_BREAK_DURATION = 5 * 60; // 5 minutes in seconds for short break
+const LONG_BREAK_DURATION = 15 * 60; // 15 minutes in seconds for long break
+const VERY_LONG_BREAK_DURATION = 30 * 60; // 60 minutes in seconds for very long break
 let timerDuration = TASK_DURATION;
 let timeRemaining = timerDuration;
 let timerInterval;
 
 function getRandomBreakLength() {
   const rand = Math.random();
-  if (rand < 0.4) return SHORT_BREAK_DURATION; // 20% chance of a short break
-  if (rand < 0.9) return LONG_BREAK_DURATION; // 25% chance of a long break
-  return VERY_LONG_BREAK_DURATION; // 5% chance of a very long break
+  if (rand < 0.5) return SHORT_BREAK_DURATION; // 50% chance of a short break
+  if (rand < 0.9) return LONG_BREAK_DURATION; // 40% chance of a long break
+  return VERY_LONG_BREAK_DURATION; // 10% chance of a very long break
 }
 
 function updateIcon() {
@@ -34,6 +30,35 @@ function updateIcon() {
   const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
   chrome.browserAction.setBadgeText({ text: badgeText });
   chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 1) {
+      timeRemaining--;
+      updateIcon();
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+    } else {
+      timerExpired();
+    }
+  }, 1000);
+}
+
+function timerExpired() {
+  clearInterval(timerInterval);
+  isRunning = false;
+  // Randomly decide whether to start a task or a break based on a 50/50 probability
+  isTaskMode = Math.random() < 0.5;
+  timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
+  timeRemaining = timerDuration;
+  try {
+    const alarmSound = new Audio('audio/alarm.wav');
+    alarmSound.play();
+  } catch (error) {
+    console.error('Failed to play alarm sound:', error);
+  }
+  updateIcon();
+  chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
 }
 
 function toggleTimer() {
@@ -61,7 +86,7 @@ function toggleTimer() {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
       if (timeRemaining === 0) {
-        isTaskMode = isTaskMode ? Math.random() < 0.5 : true;
+        isTaskMode = Math.random() < 0.5;
         timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
         timeRemaining = timerDuration;
       }
@@ -74,31 +99,3 @@ function toggleTimer() {
 chrome.browserAction.onClicked.addListener(function() {
   toggleTimer();
 });
-function startTimer() {
-  timerInterval = setInterval(() => {
-    if (timeRemaining > 0) {
-      timeRemaining--;
-      updateIcon();
-      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
-    } else {
-      timerExpired();
-    }
-  }, 1000);
-}
-
-function timerExpired() {
-  clearInterval(timerInterval);
-  isRunning = false;
-  // Randomly decide whether to start a task or a break based on a 50/50 probability
-  isTaskMode = Math.random() < 0.5;
-  timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
-  timeRemaining = timerDuration;
-  try {
-    const alarmSound = new Audio('audio/alarm.wav');
-    alarmSound.play();
-  } catch (error) {
-    console.error('Failed to play alarm sound:', error);
-  }
-  updateIcon();
-  chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
-}
