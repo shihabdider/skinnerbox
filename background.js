@@ -29,14 +29,22 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.contextMenus.onClicked.addListener((info) => {
   const match = info.menuItemId.match(/^set-task-(\d+)$/);
   if (match) {
-    const newDuration = parseInt(match[1], 10) * 60; // Convert minutes to seconds
-    TASK_DURATION = newDuration;
+    const newDuration = parseInt(match[1], 10); // Duration in minutes
+    TASK_DURATION = newDuration * 60; // Convert minutes to seconds
     if (isTaskMode) {
-      timerDuration = newDuration;
-      timeRemaining = newDuration;
+      timerDuration = TASK_DURATION;
+      timeRemaining = TASK_DURATION;
     }
     updateIcon();
     chrome.storage.local.set({ 'timerDuration': timerDuration, 'timeRemaining': timeRemaining });
+    // Create a notification for the new task duration
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'images/icon48.png',
+      title: 'Task Duration Updated',
+      message: `Task duration set to ${newDuration} minutes.`,
+      priority: 1
+    });
   }
 });
 
