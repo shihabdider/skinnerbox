@@ -16,16 +16,20 @@ function isUrlBlacklisted(url, blacklist) {
 }
 
 // Redirect to blocked.html if the requested URL is blacklisted
+// Named function for blocking requests
+function blockRequest(details) {
+  if (isRunning && !isPaused && isTaskMode) {
+    return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+      if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
+        return { redirectUrl: chrome.runtime.getURL('blocked.html') };
+      }
+    });
+  }
+}
+
+// Use the named function when adding the listener
 chrome.webRequest.onBeforeRequest.addListener(
-  function(details) {
-    if (isRunning && !isPaused && isTaskMode) {
-      return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
-        if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
-          return { redirectUrl: chrome.runtime.getURL('blocked.html') };
-        }
-      });
-    }
-  },
+  blockRequest,
   { urls: ["<all_urls>"] },
   ["blocking"]
 );
@@ -87,18 +91,7 @@ function updateIcon() {
 
 function startTimer() {
   // ... existing code ...
-  // Start blocking web requests for blacklisted websites
-  chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-      return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
-        if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
-          return { redirectUrl: chrome.runtime.getURL('blocked.html') };
-        }
-      });
-    },
-    { urls: ["<all_urls>"] },
-    ["blocking"]
-  );
+  // No need to add the listener again if it's already there
 }
 
 function timerExpired() {
@@ -122,15 +115,7 @@ function toggleTimer() {
   // ... existing code ...
   if (!isRunning) {
     // Stop blocking web requests when the timer is not running
-    chrome.webRequest.onBeforeRequest.removeListener(
-      function(details) {
-        return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
-          if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
-            return { redirectUrl: chrome.runtime.getURL('blocked.html') };
-          }
-        });
-      }
-    );
+    chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
   }
 }
 
