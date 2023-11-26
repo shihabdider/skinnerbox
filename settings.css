@@ -1,103 +1,87 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
-
 body {
-    font-family: 'Open Sans', sans-serif;
-    margin: 40px; /* Increased overall margin space */
-    padding: 40px; /* Increased side padding for the entire page */
-    background-color: #f4f4f4;
-    color: #333;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F0F0F0;
 }
 
 .container {
-    max-width: 800px; /* Set max-width for centering */
-    margin: 0 auto; /* Center the container */
+    width: 50%;
+    margin: auto;
+    padding: 2em;
+    text-align: center;
+    background-color: #FFFFFF;
+    box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    margin-top: 5em;
 }
 
 h1 {
-    color: #5D6473;
-    font-weight: 600;
-    margin-bottom: 1em;
+    color: #1E88E5;
+    font-size: 2.5em;
+    font-weight: 300;
 }
 
 #blacklist-section {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 2em;
+}
+
+h2 {
+    color: #424242;
+    font-size: 2em;
+    font-weight: 400;
 }
 
 #blacklist-form {
     display: flex;
-    margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1em;
 }
 
 #blacklist-url {
-    width: calc(100% - 50px); /* Adjust width to allow space for button */
-    max-width: 600px; /* Match the max-width of the list items */
-    padding: 10px;
-    margin-right: 10px; /* Add space between input and button */
-    margin-bottom: 10px; /* Add margin at the bottom for spacing */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-button {
-    padding: 6px 12px; /* Adjust padding to make the button smaller in height than the input */
-    background-color: #28a745; /* Green color */
-    color: #fff;
+    width: 80%;
+    padding: 0.5em;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    border-bottom: 1px solid #9E9E9E;
 }
 
-button:hover {
-    background-color: #4b5061;
+#add-button {
+    font-size: 1.8em;
+    color: #FFFFFF;
+    background-color: #1E88E5;
+    border: none;
+    border-radius: 50%;
+    width: 2em;
+    height: 2em;
+    line-height: 0.4em;
+    margin-left: 1em;
 }
 
 #blacklist {
-    list-style-type: none;
+    list-style: none;
+    text-align: left;
+    margin-top: 1em;
     padding: 0;
-    margin: 0 auto; /* Center the list */
-    max-width: 600px; /* Set a max-width for larger screens */
+    margin-left: 10%;
 }
 
 #blacklist li {
-    padding: 10px 0; /* Align with the start of the input bar */
-    background-color: #fff;
-    border: 1px solid #e1e1e1;
-    border-radius: 4px;
-    margin-top: 10px;
-    position: relative; /* Add position relative for absolute positioning of the button */
+    position: relative;
+    margin-bottom: 15px;
 }
 
-#blacklist li button {
-    display: none; /* Hide the button by default */
+#blacklist .remove-button {
     position: absolute;
-    right: 10px;
+    cursor: pointer;
+    right: 100px;
     top: 50%;
-    content: "⌫"; /* Backspace character */
+    transform: translateY(-50%);
+    color: #f44336;
+    font-size: 2em;
+    display: none;
 }
 
-#blacklist li:hover {
-    background-color: #e6e6e6; /* Darken the list item slightly on hover */
-}
-
-#blacklist li:hover button {
-    display: block; /* Show the button when hovering over the list item */
-}
-
-@media (max-width: 768px) {
-    #blacklist-form {
-        flex-direction: column;
-    }
-
-    #blacklist-url {
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-
-    button {
-        width: 100%;
-    }
+#blacklist li:hover .remove-button {
+    display: initial;
 }
