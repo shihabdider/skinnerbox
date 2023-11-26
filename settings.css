@@ -1,25 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f7f7f7;
-}
-
-h1 {
+    background-color: #f4f4f4;
     color: #333;
 }
 
+h1 {
+    color: #5D6473;
+    font-weight: 600;
+    margin-bottom: 1em;
+}
+
 #blacklist-section {
-    margin-top: 20px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #blacklist-form {
-    margin-bottom: 10px;
+    display: flex;
+    margin-bottom: 20px;
 }
 
 #blacklist-url {
-    padding: 5px;
-    margin-right: 5px;
+    flex: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #5D6473;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #4b5061;
 }
 
 #blacklist {
@@ -28,8 +54,24 @@ h1 {
 }
 
 #blacklist li {
-    padding: 5px;
+    padding: 10px;
     background-color: #fff;
-    border: 1px solid #ddd;
-    margin-top: 5px;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    #blacklist-form {
+        flex-direction: column;
+    }
+
+    #blacklist-url {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
 }
