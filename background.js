@@ -10,6 +10,7 @@ let timerInterval;
 
 // Create context menu for setting task duration
 const taskDurations = [10, 15, 30, 90]; // Task durations in minutes
+
 // Function to determine if a URL is in the blacklist
 function isUrlBlacklisted(url, blacklist) {
   return blacklist.some(blacklistedUrl => url.includes(blacklistedUrl));
@@ -27,21 +28,28 @@ function blockRequest(details) {
   }
 }
 
-// Use the named function when adding the listener
-chrome.webRequest.onBeforeRequest.addListener(
-  blockRequest,
-  { urls: ["<all_urls>"] },
-  ["blocking"]
-);
-
 chrome.runtime.onInstalled.addListener(() => {
-  // Perform tasks on extension install or update
   chrome.storage.local.set({ 'blacklistedWebsites': [] }, function() {
     console.log("Initial blacklisted websites set up in storage.");
   });
-  // Any additional setup tasks can be added here
+  chrome.contextMenus.removeAll(() => {
+    const parentMenuId = chrome.contextMenus.create({
+      id: 'parent-task-duration',
+      title: 'Set Task Duration',
+      contexts: ['browser_action'],
+    });
+    taskDurations.forEach((duration) => {
+      chrome.contextMenus.create({
+        id: `set-task-${duration}`,
+        parentId: parentMenuId,
+        title: `${duration} minutes`,
+        contexts: ['browser_action'],
+      });
+    });
+  });
 });
 
+// Feedback for selecting task duration
 chrome.contextMenus.onClicked.addListener((info) => {
   const match = info.menuItemId.match(/^set-task-(\d+)$/);
   if (match) {
@@ -94,8 +102,22 @@ function updateIcon() {
 }
 
 function startTimer() {
-  // ... existing code ...
-  // No need to add the listener again if it's already there
+  if (isTaskMode) {
+    chrome.webRequest.onBeforeRequest.addListener(
+      blockRequest,
+      { urls: ["<all_urls>"] },
+      ["blocking"]
+    );
+  }
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 1) {
+      timeRemaining--;
+      updateIcon();
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+    } else {
+      timerExpired();
+    }
+  }, 1000);
 }
 
 function timerExpired() {
@@ -112,15 +134,44 @@ function timerExpired() {
     console.error('Failed to play alarm sound:', error);
   }
   updateIcon();
+  chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
   chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
 }
 
 function toggleTimer() {
-  // ... existing code ...
-  if (!isRunning) {
-    // Stop blocking web requests when the timer is not running
+  if (isRunning && !isPaused) {
+    isPaused = true;
+    isRunning = false
+    clearInterval(timerInterval);
+    updateIcon();
     chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
+  } else if (isPaused) {
+    isPaused = false;
+    isRunning = true;
+    clearInterval(timerInterval); // Clear any existing interval
+    // Update the timer immediately before starting the interval
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateIcon();
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+    }
+    startTimer();
+  } else {
+    isRunning = true;
+    isPaused = false;
+    updateIcon();
+    chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
+      isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
+      timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
+      if (timeRemaining === 0) {
+        isTaskMode = Math.random() < (1 - WIN_PROBABILITY)
+        timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
+        timeRemaining = timerDuration;
+      }
+      startTimer();
+    });
   }
+  chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
 }
 
 chrome.browserAction.onClicked.addListener(function() {
