@@ -35,7 +35,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 chrome.runtime.onInstalled.addListener(() => {
-  // ... existing code ...
+  // Perform tasks on extension install or update
+  chrome.storage.local.set({ 'blacklistedWebsites': [] }, function() {
+    console.log("Initial blacklisted websites set up in storage.");
+  });
+  // Any additional setup tasks can be added here
 });
 
 chrome.contextMenus.onClicked.addListener((info) => {
