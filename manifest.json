@@ -11,7 +11,9 @@
     }
   },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js"
+    ],
     "persistent": true
   },
   "permissions": [
@@ -21,7 +23,7 @@
     "notifications",
     "webRequest",
     "webRequestBlocking",
-    "*://*/*"
+    "<all_urls>"
   ],
   "options_page": "settings.html",
   "icons": {

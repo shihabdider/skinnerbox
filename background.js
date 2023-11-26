@@ -11,6 +11,19 @@ let timerInterval;
 // Create context menu for setting task duration
 const taskDurations = [10, 15, 30, 90]; // Task durations in minutes
 
+var blacklist = [];
+
+// Update the blacklist when the storage changes
+chrome.storage.onChanged.addListener(function(changes, areaName) {
+  if ('blacklistedWebsites' in changes) {
+    blacklist = changes.blacklistedWebsites.newValue;
+    // Remove previous listeners
+    chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
+    // Re-add listener with new list
+    setupListener();
+  }
+});
+
 // Function to determine if a URL is in the blacklist
 function isUrlBlacklisted(url, blacklist) {
   return blacklist.some(blacklistedUrl => url.includes(blacklistedUrl));
@@ -20,11 +33,9 @@ function isUrlBlacklisted(url, blacklist) {
 // Named function for blocking requests
 function blockRequest(details) {
   if (isRunning && !isPaused && isTaskMode) {
-    return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
-      if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
-        return { redirectUrl: chrome.runtime.getURL('blocked.html') };
-      }
-    });
+    if (isUrlBlacklisted(details.url, blacklist)) {
+      return { redirectUrl: chrome.runtime.getURL('blocked.html') };
+    }
   }
 }
 
@@ -47,7 +58,24 @@ chrome.runtime.onInstalled.addListener(() => {
       });
     });
   });
+    // Load blacklisted websites from storage at startup
+  chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+    blacklist = result.blacklistedWebsites || [];
+    setupListener();  // Setup listener after the blacklist is initialized
+  });
 });
+
+function setupListener() {
+  // Add onRequest listener
+  console.log('setupListener', blacklist)
+  chrome.webRequest.onBeforeRequest.addListener(
+    blockRequest,
+    { 
+      urls: ["<all_urls>"], 
+      types: ['main_frame', 'sub_frame'] 
+    },
+    ["blocking"]);
+}
 
 // Feedback for selecting task duration
 chrome.contextMenus.onClicked.addListener((info) => {
@@ -103,19 +131,8 @@ function updateIcon() {
 
 function startTimer() {
   if (isTaskMode) {
-    chrome.storage.local.get(['blacklistedWebsites'], function(result) {
-      const blacklist = result.blacklistedWebsites || [];
-      chrome.webRequest.onBeforeRequest.addListener(
-        function(details) {
-          if (isUrlBlacklisted(details.url, blacklist)) {
-            return { redirectUrl: chrome.runtime.getURL('blocked.html') };
-          }
-        },
-        { urls: blacklist.map(urlPattern => `*://*/*${urlPattern}*/*`) },
-        ["blocking"]
-      );
-    });
-  }
+    setupListener()
+  };
   timerInterval = setInterval(() => {
     if (timeRemaining > 1) {
       timeRemaining--;
