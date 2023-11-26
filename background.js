@@ -103,11 +103,18 @@ function updateIcon() {
 
 function startTimer() {
   if (isTaskMode) {
-    chrome.webRequest.onBeforeRequest.addListener(
-      blockRequest,
-      { urls: ["<all_urls>"] },
-      ["blocking"]
-    );
+    chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+      const blacklist = result.blacklistedWebsites || [];
+      chrome.webRequest.onBeforeRequest.addListener(
+        function(details) {
+          if (isUrlBlacklisted(details.url, blacklist)) {
+            return { redirectUrl: chrome.runtime.getURL('blocked.html') };
+          }
+        },
+        { urls: blacklist.map(urlPattern => `*://*/*${urlPattern}*/*`) },
+        ["blocking"]
+      );
+    });
   }
   timerInterval = setInterval(() => {
     if (timeRemaining > 1) {
