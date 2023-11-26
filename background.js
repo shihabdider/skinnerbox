@@ -1,6 +1,8 @@
 let isTaskMode = true;
 let isRunning = false;
 let isPaused = false; // Track whether the timer is paused
+
+const WIN_PROBABILITY = 0.45
 let TASK_DURATION = 15 * 60; // 15 minutes in seconds for task mode
 let timerDuration = TASK_DURATION;
 let timeRemaining = timerDuration;
@@ -92,8 +94,8 @@ function startTimer() {
 function timerExpired() {
   clearInterval(timerInterval);
   isRunning = false;
-  // Randomly decide whether to start a task or a break based on a 50/50 probability
-  isTaskMode = Math.random() < 0.5;
+  // Randomly decide whether to start a task or a break based on a win probability
+  isTaskMode = Math.random() < (1 - WIN_PROBABILITY)
   timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
   timeRemaining = timerDuration;
   try {
@@ -131,7 +133,7 @@ function toggleTimer() {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
       if (timeRemaining === 0) {
-        isTaskMode = Math.random() < 0.5;
+        isTaskMode = Math.random() < (1 - WIN_PROBABILITY)
         timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
         timeRemaining = timerDuration;
       }
