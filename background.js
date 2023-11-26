@@ -10,10 +10,16 @@ let timerInterval;
 const taskDurations = [10, 15, 30, 90]; // Task durations in minutes
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
+    const parentMenuId = chrome.contextMenus.create({
+      id: 'parent-task-duration',
+      title: 'Set Task Duration',
+      contexts: ['browser_action'],
+    });
     taskDurations.forEach((duration) => {
       chrome.contextMenus.create({
         id: `set-task-${duration}`,
-        title: `Set Task Duration to ${duration} minutes`,
+        parentId: parentMenuId,
+        title: `${duration} minutes`,
         contexts: ['browser_action'],
       });
     });
