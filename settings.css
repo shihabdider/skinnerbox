@@ -27,9 +27,11 @@ h1 {
 }
 
 #blacklist-url {
-    flex: 1;
+    width: 100%; /* Make the input bar full width */
+    max-width: 600px; /* Match the max-width of the list items */
     padding: 10px;
-    margin-right: 10px;
+    margin-right: 0; /* Remove margin to align with list items */
+    margin-bottom: 10px; /* Add margin at the bottom for spacing */
     border: 1px solid #ddd;
     border-radius: 4px;
 }
@@ -58,26 +60,30 @@ button:hover {
 #blacklist li {
     padding: 10px;
     background-color: #fff;
-    border: 1px solid #e1e1e1;
-    border-radius: 0; /* Remove border-radius for a flat design */
-    margin-top: 0; /* Remove space between list items */
-    position: relative; /* Add position relative for absolute positioning of the button */
-    box-shadow: none; /* Remove box-shadow for a flat design */
+    border: none; /* Remove borders */
+    margin-top: 0;
+    position: relative;
 }
 
 #blacklist li button {
-    position: absolute; /* Position the button absolutely inside the li */
-    right: 10px; /* Add space between the button and the list item */
+    display: none; /* Hide the button by default */
+    position: absolute;
+    right: 10px;
     top: 50%;
-    transform: translateY(-50%); /* Center the button vertically */
-    padding: 0; /* Remove padding for the button */
-    font-size: 1.2em; /* Increase the font size for visibility */
-    line-height: 1; /* Adjust line height for the 'x' character */
-    width: 1.2em; /* Set width to match height for a square appearance */
-    height: 1.2em; /* Set a fixed height for the button */
-    text-align: center; /* Center the 'x' symbol horizontally */
-    border: none; /* Remove border for a flat design */
-    background: transparent; /* Set a transparent background for a flat design */
+    transform: translateY(-50%);
+    padding: 0;
+    font-size: 1.2em;
+    line-height: 1;
+    width: 1.2em;
+    height: 1.2em;
+    text-align: center;
+    border: none;
+    background: transparent;
+    content: "\1F5D1"; /* Trashcan emoji */
+}
+
+#blacklist li:hover button {
+    display: block; /* Show the button on hover */
 }
 
 @media (max-width: 768px) {
