@@ -22,13 +22,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Add website to the UI list and save to storage
+    // Function to add website to the UI list and save to storage
     function addWebsiteToBlacklist(website) {
-        addWebsiteToBlacklistUI(website);
         chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+            if (chrome.runtime.lastError) {
+                console.error(`Error retrieving blacklistedWebsites: ${chrome.runtime.lastError}`);
+                return;
+            }
             const updatedBlacklist = result.blacklistedWebsites || [];
-            updatedBlacklist.push(website);
-            chrome.storage.local.set({ 'blacklistedWebsites': updatedBlacklist });
+            if (!updatedBlacklist.includes(website)) {
+                updatedBlacklist.push(website);
+                chrome.storage.local.set({ 'blacklistedWebsites': updatedBlacklist }, function() {
+                    if (chrome.runtime.lastError) {
+                        console.error(`Error setting blacklistedWebsites: ${chrome.runtime.lastError}`);
+                        return;
+                    }
+                    addWebsiteToBlacklistUI(website);
+                });
+            }
         });
     }
 
@@ -46,13 +57,21 @@ document.addEventListener('DOMContentLoaded', function() {
         blacklist.appendChild(listItem);
     }
 
-    // Remove website from the blacklist in storage
+    // Function to remove website from the blacklist in storage
     function removeFromBlacklist(website) {
         chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+            if (chrome.runtime.lastError) {
+                console.error(`Error retrieving blacklistedWebsites: ${chrome.runtime.lastError}`);
+                return;
+            }
             const updatedBlacklist = result.blacklistedWebsites.filter(function(item) {
                 return item !== website;
             });
-            chrome.storage.local.set({ 'blacklistedWebsites': updatedBlacklist });
+            chrome.storage.local.set({ 'blacklistedWebsites': updatedBlacklist }, function() {
+                if (chrome.runtime.lastError) {
+                    console.error(`Error setting blacklistedWebsites: ${chrome.runtime.lastError}`);
+                }
+            });
         });
     }
 });
