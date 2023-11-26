@@ -3,7 +3,7 @@
 body {
     font-family: 'Open Sans', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 40px; /* Increased side padding for the entire page */
     background-color: #f4f4f4;
     color: #333;
 }
@@ -59,9 +59,10 @@ button:hover {
     padding: 10px;
     background-color: #fff;
     border: 1px solid #e1e1e1;
-    border-radius: 4px;
-    margin-top: 10px;
+    border-radius: 0; /* Remove border-radius for a flat design */
+    margin-top: 0; /* Remove space between list items */
     position: relative; /* Add position relative for absolute positioning of the button */
+    box-shadow: none; /* Remove box-shadow for a flat design */
 }
 
 #blacklist li button {
@@ -69,7 +70,14 @@ button:hover {
     right: 10px; /* Add space between the button and the list item */
     top: 50%;
     transform: translateY(-50%); /* Center the button vertically */
-    padding: 0 5px; /* Reduce padding for the button */
+    padding: 0; /* Remove padding for the button */
+    font-size: 1.2em; /* Increase the font size for visibility */
+    line-height: 1; /* Adjust line height for the 'x' character */
+    width: 1.2em; /* Set width to match height for a square appearance */
+    height: 1.2em; /* Set a fixed height for the button */
+    text-align: center; /* Center the 'x' symbol horizontally */
+    border: none; /* Remove border for a flat design */
+    background: transparent; /* Set a transparent background for a flat design */
 }
 
 @media (max-width: 768px) {
