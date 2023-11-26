@@ -10,22 +10,28 @@ let timerInterval;
 
 // Create context menu for setting task duration
 const taskDurations = [10, 15, 30, 90]; // Task durations in minutes
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.removeAll(() => {
-    const parentMenuId = chrome.contextMenus.create({
-      id: 'parent-task-duration',
-      title: 'Set Task Duration',
-      contexts: ['browser_action'],
-    });
-    taskDurations.forEach((duration) => {
-      chrome.contextMenus.create({
-        id: `set-task-${duration}`,
-        parentId: parentMenuId,
-        title: `${duration} minutes`,
-        contexts: ['browser_action'],
+// Function to determine if a URL is in the blacklist
+function isUrlBlacklisted(url, blacklist) {
+  return blacklist.some(blacklistedUrl => url.includes(blacklistedUrl));
+}
+
+// Redirect to blocked.html if the requested URL is blacklisted
+chrome.webRequest.onBeforeRequest.addListener(
+  function(details) {
+    if (isRunning && !isPaused && isTaskMode) {
+      return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+        if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
+          return { redirectUrl: chrome.runtime.getURL('blocked.html') };
+        }
       });
-    });
-  });
+    }
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking"]
+);
+
+chrome.runtime.onInstalled.addListener(() => {
+  // ... existing code ...
 });
 
 chrome.contextMenus.onClicked.addListener((info) => {
@@ -80,15 +86,19 @@ function updateIcon() {
 }
 
 function startTimer() {
-  timerInterval = setInterval(() => {
-    if (timeRemaining > 1) {
-      timeRemaining--;
-      updateIcon();
-      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
-    } else {
-      timerExpired();
-    }
-  }, 1000);
+  // ... existing code ...
+  // Start blocking web requests for blacklisted websites
+  chrome.webRequest.onBeforeRequest.addListener(
+    function(details) {
+      return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+        if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
+          return { redirectUrl: chrome.runtime.getURL('blocked.html') };
+        }
+      });
+    },
+    { urls: ["<all_urls>"] },
+    ["blocking"]
+  );
 }
 
 function timerExpired() {
@@ -109,38 +119,19 @@ function timerExpired() {
 }
 
 function toggleTimer() {
-  if (isRunning && !isPaused) {
-    isPaused = true;
-    isRunning = false
-    clearInterval(timerInterval);
-    updateIcon();
-  } else if (isPaused) {
-    isPaused = false;
-    isRunning = true;
-    clearInterval(timerInterval); // Clear any existing interval
-    // Update the timer immediately before starting the interval
-    if (timeRemaining > 0) {
-      timeRemaining--;
-      updateIcon();
-      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
-    }
-    startTimer();
-  } else {
-    isRunning = true;
-    isPaused = false;
-    updateIcon();
-    chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
-      isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
-      timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
-      if (timeRemaining === 0) {
-        isTaskMode = Math.random() < (1 - WIN_PROBABILITY)
-        timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
-        timeRemaining = timerDuration;
+  // ... existing code ...
+  if (!isRunning) {
+    // Stop blocking web requests when the timer is not running
+    chrome.webRequest.onBeforeRequest.removeListener(
+      function(details) {
+        return chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+          if (result.blacklistedWebsites && isUrlBlacklisted(details.url, result.blacklistedWebsites)) {
+            return { redirectUrl: chrome.runtime.getURL('blocked.html') };
+          }
+        });
       }
-      startTimer();
-    });
+    );
   }
-  chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
 }
 
 chrome.browserAction.onClicked.addListener(function() {
