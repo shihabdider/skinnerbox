@@ -84,11 +84,15 @@ button:hover {
     text-align: center;
     border: none;
     background: transparent;
-    content: "\1F5D1"; /* Trashcan emoji */
+    content: "⌫"; /* Backspace character */
+}
+
+#blacklist li:hover {
+    background-color: #e6e6e6; /* Darken the list item slightly on hover */
 }
 
 #blacklist li:hover button {
-    display: block; /* Show the button on hover */
+    display: block; /* Show the button when hovering over the list item */
 }
 
 @media (max-width: 768px) {
