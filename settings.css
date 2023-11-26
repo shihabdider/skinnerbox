@@ -42,7 +42,7 @@ h1 {
 }
 
 button {
-    padding: 6px 15px; /* Make the button smaller in height than the input */
+    padding: 6px 12px; /* Adjust padding to make the button smaller in height than the input */
     background-color: #28a745; /* Green color */
     color: #fff;
     border: none;
@@ -63,7 +63,7 @@ button:hover {
 }
 
 #blacklist li {
-    padding: 10px 0 10px 10px; /* Align with the start of the input bar */
+    padding: 10px 0; /* Align with the start of the input bar */
     background-color: #fff;
     border: none; /* Remove borders */
     margin-top: 0;
