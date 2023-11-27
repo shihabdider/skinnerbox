@@ -74,4 +74,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+
+    // Initialize the heatmap
+    const cal = new CalHeatMap();
+    cal.init({
+        itemSelector: "#activity-graph",
+        domain: "month",
+        subDomain: "day",
+        data: "data.json", // Placeholder for data URL
+        start: new Date(new Date().getFullYear(), new Date().getMonth() - 1),
+        cellSize: 10,
+        range: 3,
+        legend: [1, 2, 4, 8],
+        legendColors: {
+            min: "#efefef",
+            max: "#072ac8",
+            empty: "white"
+        }
+    });
+
+    // Load the activity data from storage and display it
+    chrome.storage.sync.get(['activityData'], function(result) {
+        const activityData = result.activityData || {};
+        // Convert activity data to the format expected by cal-heatmap
+        const heatmapData = {};
+        for (const date in activityData) {
+            const count = activityData[date].tasks + activityData[date].breaks;
+            heatmapData[new Date(date).getTime() / 1000] = count;
+        }
+        cal.update(heatmapData);
+    });
 });
