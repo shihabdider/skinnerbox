@@ -147,8 +147,9 @@ function startTimer() {
 function timerExpired() {
   clearInterval(timerInterval);
   isRunning = false;
+  const wasTaskMode = isTaskMode; // Store the mode before it potentially changes
   // Randomly decide whether to start a task or a break based on a win probability
-  isTaskMode = Math.random() < (1 - WIN_PROBABILITY)
+  isTaskMode = Math.random() < (1 - WIN_PROBABILITY);
   timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
   timeRemaining = timerDuration;
   try {
@@ -159,7 +160,8 @@ function timerExpired() {
   }
   updateIcon();
   chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
-  chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining });
+  chrome.storage.sync.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining }); // Use sync storage
+  updateActivityData(wasTaskMode); // Update the activity data with the mode that just ended
 }
 
 function toggleTimer() {
@@ -201,3 +203,19 @@ function toggleTimer() {
 chrome.browserAction.onClicked.addListener(function() {
   toggleTimer();
 });
+// Function to update the activity data for task and break timers
+function updateActivityData(isTask) {
+  const today = new Date().toISOString().split('T')[0]; // Get current date as YYYY-MM-DD
+  chrome.storage.sync.get(['activityData'], function(result) {
+    const activityData = result.activityData || {}; // Use existing data or initialize an empty object
+    if (!activityData[today]) {
+      activityData[today] = { tasks: 0, breaks: 0 };
+    }
+    if (isTask) {
+      activityData[today].tasks += 1; // Increment task count for today
+    } else {
+      activityData[today].breaks += 1; // Increment break count for today
+    }
+    chrome.storage.sync.set({ 'activityData': activityData }); // Save the updated data
+  });
+}
