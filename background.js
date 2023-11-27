@@ -20,7 +20,7 @@ chrome.storage.onChanged.addListener(function(changes, areaName) {
     // Remove previous listeners
     chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
     // Re-add listener with new list
-    setupListener();
+    blocksiteListener();
   }
 });
 
@@ -61,13 +61,12 @@ chrome.runtime.onInstalled.addListener(() => {
     // Load blacklisted websites from storage at startup
   chrome.storage.local.get(['blacklistedWebsites'], function(result) {
     blacklist = result.blacklistedWebsites || [];
-    setupListener();  // Setup listener after the blacklist is initialized
+    blocksiteListener();  // Setup listener after the blacklist is initialized
   });
 });
 
-function setupListener() {
+function blocksiteListener() {
   // Add onRequest listener
-  console.log('setupListener', blacklist)
   chrome.webRequest.onBeforeRequest.addListener(
     blockRequest,
     { 
@@ -131,7 +130,7 @@ function updateIcon() {
 
 function startTimer() {
   if (isTaskMode) {
-    setupListener()
+    blocksiteListener()
   };
   timerInterval = setInterval(() => {
     if (timeRemaining > 1) {
@@ -203,6 +202,7 @@ function toggleTimer() {
 chrome.browserAction.onClicked.addListener(function() {
   toggleTimer();
 });
+
 // Function to update the activity data for task and break timers
 function updateActivityData(isTask) {
   const today = new Date().toISOString().split('T')[0]; // Get current date as YYYY-MM-DD
