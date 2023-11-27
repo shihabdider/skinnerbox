@@ -85,6 +85,25 @@ h2 {
 #blacklist li:hover .remove-button {
     display: initial;
 }
+#activity-graph-section {
+    margin-top: 2em;
+}
+
+#activity-graph-section h2 {
+    color: #424242;
+    font-size: 2em;
+    font-weight: 400;
+}
+
+#activity-graph {
+    margin-top: 1em;
+    padding: 0.5em;
+    border: none;
+    border-bottom: 1px solid #9E9E9E;
+    text-align: left;
+    margin-left: 10%;
+}
+
 /* Additional styles for the activity graph heatmap */
 .cal-heatmap-container rect {
     stroke: #e6e6e6; /* Light grey border for the cells */
