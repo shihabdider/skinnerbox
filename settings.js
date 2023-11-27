@@ -74,10 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-
-    // Initialize the heatmap
     const cal = new CalHeatMap();
     cal.init({
         itemSelector: "#activity-graph",
@@ -86,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: "data.json", // Placeholder for data URL
         start: new Date(new Date().getFullYear(), new Date().getMonth() - 1),
         cellSize: 10,
-        range: 3,
+        range: 10,
         legend: [1, 2, 4, 8],
         legendColors: {
             min: "#efefef",

@@ -99,14 +99,8 @@ h2 {
     margin-top: 1em;
     padding: 0.5em;
     border: none;
-    border-bottom: 1px solid #9E9E9E;
     text-align: left;
-    margin-left: 10%;
-}
-
-/* Additional styles for the activity graph heatmap */
-.cal-heatmap-container rect {
-    stroke: #e6e6e6; /* Light grey border for the cells */
+    margin-left: 3%;
 }
 
 /* Define a blue color range for the heatmap cells */
