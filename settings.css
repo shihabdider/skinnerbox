@@ -85,3 +85,27 @@ h2 {
 #blacklist li:hover .remove-button {
     display: initial;
 }
+/* Additional styles for the activity graph heatmap */
+.cal-heatmap-container rect {
+    stroke: #e6e6e6; /* Light grey border for the cells */
+}
+
+/* Define a blue color range for the heatmap cells */
+.cal-heatmap-container rect.q1 { fill: #deebf7; } /* Lightest blue */
+.cal-heatmap-container rect.q2 { fill: #9ecae1; }
+.cal-heatmap-container rect.q3 { fill: #3182bd; }
+.cal-heatmap-container rect.q4 { fill: #08519c; } /* Darkest blue */
+
+/* Style for the legend */
+.cal-heatmap-container .legend {
+    font-size: 0.8em;
+}
+
+/* Style for the tooltip */
+.cal-heatmap-container .ch-tooltip {
+    background-color: #1E88E5; /* Blue background for the tooltip */
+    border-radius: 4px;
+    color: white;
+    padding: 5px;
+    font-size: 0.9em;
+}
