@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: "data.json", // Placeholder for data URL
         start: new Date(new Date().getFullYear(), new Date().getMonth() - 1),
         cellSize: 10,
-        range: 10,
+        range: 5,
         legend: [1, 2, 4, 8],
         legendColors: {
             min: "#efefef",
