@@ -47,9 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function addWebsiteToBlacklistUI(website) {
         const listItem = document.createElement('li');
         listItem.textContent = website;
-        const removeButton = document.createElement('span');
-        removeButton.textContent = '⌫';  // Use the backspace emoji as the button text
-        removeButton.classList.add('remove-button');  // Add the .remove-button class
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
         removeButton.addEventListener('click', function() {
             listItem.remove();
             removeFromBlacklist(website);
@@ -57,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         listItem.appendChild(removeButton);
         blacklist.appendChild(listItem);
     }
+
     // Function to remove website from the blacklist in storage
     function removeFromBlacklist(website) {
         chrome.storage.local.get(['blacklistedWebsites'], function(result) {
