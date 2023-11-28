@@ -26,7 +26,7 @@ chrome.storage.onChanged.addListener(function(changes, areaName) {
 
 // Function to determine if a URL is in the blacklist
 function isUrlBlacklisted(url, blacklist) {
-  return blacklist.some(blacklistedUrl => url.includes(blacklistedUrl));
+  return blacklist.some(blacklistedUrl => url.includes(blacklistedUrl) || blacklistedUrl.includes(url));
 }
 
 // Redirect to blocked.html if the requested URL is blacklisted
@@ -87,7 +87,7 @@ chrome.contextMenus.onClicked.addListener((info) => {
       timeRemaining = TASK_DURATION;
     }
     updateIcon();
-    chrome.storage.sync.set({ 'timerDuration': timerDuration, 'timeRemaining': timeRemaining });
+    chrome.storage.local.set({ 'timerDuration': timerDuration, 'timeRemaining': timeRemaining });
     // Create a notification for the new task duration
     chrome.notifications.create({
       type: 'basic',
@@ -124,8 +124,8 @@ function updateIcon() {
     }
   }
   const badgeColor = isTaskMode ? '#0000FF' : '#008000'; // Blue for task, Green for break
-  chrome.browserAction.setBadgeText({ text: badgeText });
   chrome.browserAction.setBadgeBackgroundColor({ color: badgeColor });
+  chrome.browserAction.setBadgeText({ text: badgeText });
 }
 
 function startTimer() {
@@ -135,8 +135,8 @@ function startTimer() {
   timerInterval = setInterval(() => {
     if (timeRemaining > 1) {
       timeRemaining--;
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
       updateIcon();
-      chrome.storage.sync.set({ 'timeRemaining': timeRemaining });
     } else {
       timerExpired();
     }
@@ -159,15 +159,15 @@ function timerExpired() {
   }
   updateIcon();
   chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
-  chrome.storage.sync.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining }); // Use sync storage
+  chrome.storage.local.set({ 'isTaskMode': isTaskMode, 'timeRemaining': timeRemaining }); 
   updateActivityData(wasTaskMode); // Update the activity data with the mode that just ended
 }
 
 function toggleTimer() {
   if (isRunning && !isPaused) {
+    clearInterval(timerInterval);
     isPaused = true;
     isRunning = false
-    clearInterval(timerInterval);
     updateIcon();
     chrome.webRequest.onBeforeRequest.removeListener(blockRequest);
   } else if (isPaused) {
@@ -177,26 +177,26 @@ function toggleTimer() {
     // Update the timer immediately before starting the interval
     if (timeRemaining > 0) {
       timeRemaining--;
-      updateIcon();
-      chrome.storage.sync.set({ 'timeRemaining': timeRemaining });
+      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
     }
     startTimer();
+    updateIcon();
   } else {
     isRunning = true;
     isPaused = false;
-    updateIcon();
-    chrome.storage.sync.get(['isTaskMode', 'timeRemaining'], function(data) {
+    chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
       if (timeRemaining === 0) {
         isTaskMode = Math.random() < (1 - WIN_PROBABILITY)
-        timerDuration = !isTaskMode ? TASK_DURATION : getRandomBreakLength();
+        timerDuration = isTaskMode ? TASK_DURATION : getRandomBreakLength();
         timeRemaining = timerDuration;
       }
       startTimer();
+      updateIcon();
     });
   }
-  chrome.storage.sync.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
+  chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
 }
 
 chrome.browserAction.onClicked.addListener(function() {

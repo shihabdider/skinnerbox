@@ -99,7 +99,7 @@ h2 {
     margin-top: 1em;
     padding: 0.5em;
     border: none;
-    text-align: left;
+    text-align: center;
     margin-left: 3%;
 }
 
@@ -116,6 +116,8 @@ h2 {
 
 /* Style for the tooltip */
 .cal-heatmap-container .ch-tooltip {
+    display:block;
+    margin:auto;
     background-color: #1E88E5; /* Blue background for the tooltip */
     border-radius: 4px;
     color: white;
