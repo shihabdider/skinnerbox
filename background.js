@@ -40,7 +40,7 @@ function blockRequest(details) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ 'blacklistedWebsites': [] }, function() {
+  chrome.storage.sync.set({ 'blacklistedWebsites': [] }, function() {
     console.log("Initial blacklisted websites set up in storage.");
   });
   chrome.contextMenus.removeAll(() => {
@@ -59,7 +59,7 @@ chrome.runtime.onInstalled.addListener(() => {
     });
   });
     // Load blacklisted websites from storage at startup
-  chrome.storage.local.get(['blacklistedWebsites'], function(result) {
+  chrome.storage.sync.get(['blacklistedWebsites'], function(result) {
     blacklist = result.blacklistedWebsites || [];
     blocksiteListener();  // Setup listener after the blacklist is initialized
   });
@@ -87,7 +87,7 @@ chrome.contextMenus.onClicked.addListener((info) => {
       timeRemaining = TASK_DURATION;
     }
     updateIcon();
-    chrome.storage.local.set({ 'timerDuration': timerDuration, 'timeRemaining': timeRemaining });
+    chrome.storage.sync.set({ 'timerDuration': timerDuration, 'timeRemaining': timeRemaining });
     // Create a notification for the new task duration
     chrome.notifications.create({
       type: 'basic',
@@ -136,7 +136,7 @@ function startTimer() {
     if (timeRemaining > 1) {
       timeRemaining--;
       updateIcon();
-      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+      chrome.storage.sync.set({ 'timeRemaining': timeRemaining });
     } else {
       timerExpired();
     }
@@ -178,14 +178,14 @@ function toggleTimer() {
     if (timeRemaining > 0) {
       timeRemaining--;
       updateIcon();
-      chrome.storage.local.set({ 'timeRemaining': timeRemaining });
+      chrome.storage.sync.set({ 'timeRemaining': timeRemaining });
     }
     startTimer();
   } else {
     isRunning = true;
     isPaused = false;
     updateIcon();
-    chrome.storage.local.get(['isTaskMode', 'timeRemaining'], function(data) {
+    chrome.storage.sync.get(['isTaskMode', 'timeRemaining'], function(data) {
       isTaskMode = data.isTaskMode !== undefined ? data.isTaskMode : isTaskMode;
       timeRemaining = data.timeRemaining !== undefined ? data.timeRemaining : timerDuration;
       if (timeRemaining === 0) {
@@ -196,7 +196,7 @@ function toggleTimer() {
       startTimer();
     });
   }
-  chrome.storage.local.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
+  chrome.storage.sync.set({ 'isRunning': isRunning, 'isPaused': isPaused, 'isTaskMode': isTaskMode });
 }
 
 chrome.browserAction.onClicked.addListener(function() {
